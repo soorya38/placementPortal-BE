@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fetch from localhost:8080</title>
+</head>
+<body>
+  <h1>Response from localhost:8080</h1>
+  <pre id="response">Loading...</pre>
+
+  <script>
+    async function fetchData() {
+      try {
+        const res = await fetch("http://localhost:8080/user/health");
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        const data = await res.text(); // or res.json() if your endpoint returns JSON
+        document.getElementById("response").textContent = data;
+      } catch (err) {
+        document.getElementById("response").textContent = "Error: " + err.message;
+      }
+    }
+
+    window.onload = fetchData;
+  </script>
+</body>
+</html>

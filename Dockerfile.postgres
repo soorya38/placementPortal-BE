@@ -1,0 +1,16 @@
+# PostgreSQL Dockerfile
+FROM postgres:15-alpine
+
+# Set environment variables
+ENV POSTGRES_DB=myapp
+ENV POSTGRES_USER=myuser
+ENV POSTGRES_PASSWORD=mypassword
+
+# Copy initialization scripts (optional)
+COPY ./init-scripts/ /docker-entrypoint-initdb.d/
+
+# Expose PostgreSQL port
+EXPOSE 5432
+
+# The base postgres image already has the correct CMD
+# CMD ["postgres"]

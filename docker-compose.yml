@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: myapp
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d myapp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: postgres -c 'max_connections=1000'
+
+  # Golang Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.golang
+    image: placement-portal:latest
+    container_name: golang_app
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=myuser
+      - DB_PASSWORD=mypassword
+      - DB_NAME=myapp
+      - CORS_ALLOWED_ORIGINS=https://0f22-2402-3a80-1325-cd70-dd05-94a2-213-dd84.ngrok-free.app,https://place-pro-platform-88.vercel.app,https://localhost:8081,http://localhost:8081
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app-network
+    restart: unless-stopped
+
+# Named volumes
+volumes:
+  postgres_data:
+
+# Networks
+networks:
+  app-network:
+    driver: bridge
